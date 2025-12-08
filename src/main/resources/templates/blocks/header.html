@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+
+<div th:fragment="header_main">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-grey">
+    <div class="container col-12">
+      <a class="navbar-brand" href="/">
+        <img src="/files/auto_shop.jpg" alt="АвтоМаг" height="100">
+      </a>
+      <div class="collapse navbar-collapse">
+        <div class="navbar-nav me-auto">
+          <a class="btn btn-secondary me-2" href="/">Все объявления</a>
+          <a class="btn btn-primary" th:if="${user.id != -1}" th:href="@{/posts/create}">Создать объявление</a>
+        </div>
+      </div>
+      <div class="dropdown d-flex" th:if="${user.id == -1}">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="guestDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          Гость
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-lg-start" aria-labelledby="guestDropdown">
+          <li><a class="dropdown-item" th:href="@{/users/login}">Войти</a></li>
+          <li><a class="dropdown-item" th:href="@{/users/register}">Зарегистрироваться</a></li>
+        </ul>
+      </div>
+      <div class="dropdown d-flex" th:if="${user.id != -1}">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="UserDropdown" data-bs-toggle="dropdown" aria-expanded="false" th:text="${user.name}">
+          Пользователь
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-lg-start" aria-labelledby="UserDropdown">
+          <li><a class="dropdown-item" th:href="@{/users/update}">Изменить данные</a></li>
+          <li><a class="dropdown-item" th:href="@{/users/posts}">Ваши объявления</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" th:href="@{/users/logout}">Выйти</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>
+
+<div th:fragment="header_login">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-grey">
+    <div class="container col-9">
+      <a class="navbar-brand" href="/">
+        <img src="/files/auto_shop.jpg" alt="Автомаг" height="80">
+      </a>
+    </div>
+  </nav>
+</div>
