@@ -8,8 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.cars.model.User;
-import ru.job4j.cars.service.PostService;
-import ru.job4j.cars.service.UserService;
+import ru.job4j.cars.service.interfaces.PostService;
+import ru.job4j.cars.service.interfaces.UserService;
 
 @Controller
 @RequestMapping("/users")
@@ -87,16 +87,14 @@ public class UserController {
     }
 
     @PostMapping("/delete")
-    public String deleteUser(@RequestParam String password, Model model, HttpSession session) {
+    public String deleteUser(Model model, HttpSession session) {
         User actualUser = (User) session.getAttribute("user");
-        if (!password.equals(actualUser.getPassword())) {
-            model.addAttribute("error", "Введенный пароль не совпадает с паролем пользователя.");
-            model.addAttribute("user", session.getAttribute("user"));
-            return "users/update";
-        }
         session.invalidate();
         postService.deleteAllByUser(actualUser);
-        userService.deleteByEmailAndPassword(actualUser.getEmail(), actualUser.getPassword());
+        userService.deleteByEmailAndPassword(
+                actualUser.getEmail(),
+                actualUser.getPassword()
+        );
         return "redirect:/";
     }
 }

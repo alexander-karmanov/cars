@@ -5,6 +5,9 @@ import org.hibernate.SessionFactory;
 import ru.job4j.cars.model.Engine;
 import ru.job4j.cars.model.EngineSize;
 import ru.job4j.cars.model.FuelType;
+import ru.job4j.cars.repository.implementations.CrudRepository;
+import ru.job4j.cars.repository.implementations.HibernateEngineRepository;
+import ru.job4j.cars.repository.interfaces.EngineRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 

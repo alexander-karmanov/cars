@@ -13,7 +13,7 @@ import ru.job4j.cars.dto.PostSearchDto;
 import ru.job4j.cars.model.Brand;
 import ru.job4j.cars.model.CarModel;
 import ru.job4j.cars.model.Post;
-import ru.job4j.cars.service.*;
+import ru.job4j.cars.service.interfaces.*;
 import ru.job4j.cars.utilities.SearchValidator;
 
 @Controller

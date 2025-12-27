@@ -10,7 +10,7 @@ public class Engine {
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "fuel_type_id", foreignKey = @ForeignKey(name = "FUEL_TYPE_ID_FK"))

@@ -6,7 +6,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ru.job4j.cars.dto.ImageDto;
 import ru.job4j.cars.model.Image;
-import ru.job4j.cars.repository.ImageRepository;
+import ru.job4j.cars.repository.interfaces.ImageRepository;
+import ru.job4j.cars.service.implementations.SimpleImageService;
 import ru.job4j.cars.utilities.ImageUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

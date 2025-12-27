@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.job4j.cars.dto.ImageDto;
 import ru.job4j.cars.dto.PostSearchDto;
 import ru.job4j.cars.model.Post;
-import ru.job4j.cars.service.*;
+import ru.job4j.cars.service.interfaces.*;
 import ru.job4j.cars.utilities.SearchValidator;
 
 import java.io.IOException;

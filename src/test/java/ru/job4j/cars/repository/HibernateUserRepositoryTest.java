@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.job4j.cars.model.User;
+import ru.job4j.cars.repository.implementations.CrudRepository;
+import ru.job4j.cars.repository.implementations.HibernateUserRepository;
 
 import java.util.Optional;
 

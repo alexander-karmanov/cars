@@ -6,7 +6,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ru.job4j.cars.dto.ImageDto;
 import ru.job4j.cars.model.*;
-import ru.job4j.cars.repository.PostRepository;
+import ru.job4j.cars.repository.interfaces.PostRepository;
+import ru.job4j.cars.service.implementations.SimplePostService;
+import ru.job4j.cars.service.interfaces.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;

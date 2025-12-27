@@ -10,7 +10,7 @@ public class EngineSize {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     private float size;
 

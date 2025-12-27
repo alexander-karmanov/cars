@@ -4,20 +4,22 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "post")
-@Data
+@Getter
+@Setter
+@ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
-    private int id;
+    private Integer id;
 
     private String description;
 

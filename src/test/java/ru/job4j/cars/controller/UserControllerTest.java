@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.ui.Model;
 import ru.job4j.cars.model.User;
-import ru.job4j.cars.service.PostService;
-import ru.job4j.cars.service.UserService;
+import ru.job4j.cars.service.interfaces.PostService;
+import ru.job4j.cars.service.interfaces.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -81,7 +81,7 @@ public class UserControllerTest {
         Mockito.when(session.getAttribute("user")).thenReturn(user);
         Model model = Mockito.mock(Model.class);
         String password = "correctPassword";
-        String result = userController.deleteUser(password, model, session);
+        String result = userController.deleteUser(model, session);
         Mockito.verify(session).invalidate();
         Mockito.verify(postService).deleteAllByUser(user);
         Mockito.verify(userService).deleteByEmailAndPassword(user.getEmail(), user.getPassword());

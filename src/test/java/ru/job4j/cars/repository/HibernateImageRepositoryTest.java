@@ -3,6 +3,8 @@ package ru.job4j.cars.repository;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.*;
 import ru.job4j.cars.model.Image;
+import ru.job4j.cars.repository.implementations.CrudRepository;
+import ru.job4j.cars.repository.implementations.HibernateImageRepository;
 
 import java.util.Optional;
 
