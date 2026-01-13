@@ -1,6 +1,10 @@
 package ru.job4j.cars.service.implementations;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.stereotype.Service;
 import ru.job4j.cars.dto.ImageDto;
 import ru.job4j.cars.dto.PostSearchDto;
@@ -8,13 +12,10 @@ import ru.job4j.cars.model.*;
 import ru.job4j.cars.repository.interfaces.PostRepository;
 import ru.job4j.cars.service.interfaces.*;
 
-import javax.transaction.Transactional;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
+@Slf4j
 @AllArgsConstructor
 public class SimplePostService implements PostService {
 
@@ -25,19 +26,31 @@ public class SimplePostService implements PostService {
     private final ImageService imageService;
     private final PriceHistoryService priceHistoryService;
 
+    private final SessionFactory sessionFactory;
+
     @Override
-    @Transactional
     public Optional<Post> save(Post post, ImageDto imageDto) {
-        setBrand(post.getCar());
-        setEngine(post.getCar());
-        addPriceHistory(post);
-        Image newImage = imageDto.getContent().length != 0 ? imageService.saveImage(imageDto) : null;
-        post.setImage(newImage);
-        Optional<Post> foundPost = postRepository.save(post);
-        if (foundPost.isEmpty() && newImage != null) {
-            imageService.deleteImage(newImage);
+        Session session = sessionFactory.getCurrentSession();
+        Transaction transaction = session.beginTransaction();
+        Image newImage = null;
+        try {
+            setBrand(post.getCar());
+            setEngine(post.getCar());
+            addPriceHistory(post);
+            if (imageDto.getContent().length != 0) {
+                newImage = imageService.saveImage(imageDto);
+                post.setImage(newImage);
+            }
+            Post savedPost = (Post) session.merge(post);
+            transaction.commit();
+            return Optional.of(savedPost);
+        } catch (Exception e) {
+            transaction.rollback();
+            if (newImage != null) {
+                imageService.deleteImage(newImage);
+            }
+            throw e;
         }
-        return foundPost;
     }
 
     @Override
@@ -56,42 +69,63 @@ public class SimplePostService implements PostService {
     }
 
     @Override
-    @Transactional
     public boolean update(Post post, ImageDto imageDto) {
-        setBrand(post.getCar());
-        setEngine(post.getCar());
-        post.setPriceHistories(priceHistoryService.getPriceHistoriesByPostId(post.getId()));
-        PriceHistory lastPrice = Collections.max(post.getPriceHistories(),
-                Comparator.comparing(PriceHistory::getDate));
-        if (post.getPrice() != lastPrice.getPrice()) {
-            addPriceHistory(post);
-        }
+        Session session = sessionFactory.getCurrentSession();
+        Transaction transaction = session.beginTransaction();
+        Image newImage = null;
+        try {
+            setBrand(post.getCar());
+            setEngine(post.getCar());
+            Set<PriceHistory> priceHistories = priceHistoryService.getPriceHistoriesByPostId(post.getId());
+            PriceHistory lastPrice = priceHistories.stream()
+                    .max(Comparator.comparing(PriceHistory::getDate))
+                    .orElse(null);
 
-        boolean isNewImageExists = imageDto.getContent().length != 0;
-        Optional<Image> oldImage = post.getImage() != null
-                ? imageService.getImageById(post.getImage().getId()) : Optional.empty();
-        if (!isNewImageExists) {
-            oldImage.ifPresent(post::setImage);
-            return postRepository.update(post);
+            if (!Objects.equals(post.getPrice(), lastPrice != null ? lastPrice.getPrice() : null)) {
+                addPriceHistory(post);
+            }
+            if (hasValidImage(imageDto)) {
+                newImage = imageService.saveImage(imageDto);
+                post.setImage(newImage);
+            } else if (post.getImage() == null) {
+                post.setImage(null);
+            }
+            session.merge(post);
+            transaction.commit();
+            if (newImage != null && post.getImage() != null && !post.getImage().equals(newImage)) {
+                imageService.deleteImage(post.getImage());
+            }
+            return true;
+        } catch (Exception e) {
+            transaction.rollback();
+            if (newImage != null) {
+                imageService.deleteImage(newImage);
+            }
+            throw new RuntimeException("Ошибка при обновлении поста с ID: " + post.getId(), e);
         }
-        Image newImage = imageService.saveImage(imageDto);
-        post.setImage(newImage);
-        boolean isUpdated = postRepository.update(post);
-        if (isUpdated) {
-            oldImage.ifPresent(imageService::deleteImage);
-        } else {
-            imageService.deleteImage(newImage);
-        }
-        return isUpdated;
+    }
+
+    private boolean hasValidImage(ImageDto imageDto) {
+        return imageDto != null && imageDto.getContent() != null && imageDto.getContent().length > 0;
     }
 
     @Override
-    @Transactional
     public void deleteAllByUser(User user) {
-        List<Post> posts = postRepository.findAllByUserId(user.getId());
-        postRepository.deleteAllByUser(user);
-        posts.forEach(this::deletePostsImage);
-        posts.forEach(p -> carService.delete(p.getCar()));
+        Session session = sessionFactory.getCurrentSession();
+        Transaction transaction = session.beginTransaction();
+
+        try {
+            List<Post> posts = postRepository.findAllByUserId(user.getId());
+            postRepository.deleteAllByUser(user);
+            posts.forEach(this::deletePostsImage);
+            posts.forEach(p -> carService.delete(p.getCar()));
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.getStatus().canRollback()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
     @Override
